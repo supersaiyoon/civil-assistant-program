@@ -1,0 +1,98 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+TYPES OF CHANGES:
+- "### Added" for new features.
+- "### Changed" for changes in existing functionality.
+- "### Deprecated" for soon-to-be removed features.
+- "### Removed" for now removed features.
+- "### Fixed" for any bug fixes.
+- "### Security" in case of vulnerabilities.
+
+## [Unreleased]
+- Possibly provide reason for closing the file?
+- Update "Can I close file?" process by converting wall of text into individual yes/no questions.
+- Add color; make things look more visually appealing.
+- Add service date calculator
+- Add reverse service date calculator
+- Add MOD breakdown commenting tool
+- Add COE appeal period date calculator
+
+
+## [2.0.0] - TBD
+
+### Added
+- Users can now return to the main menu at any time in the program by typing the number 0.
+
+### Changed
+- Significant changes were made to the code in order to allow the user to return to the main menu at any time.
+
+
+## [1.0] - 2020-07-24
+
+### Added
+- Additional verification of dates entered for bankruptcies. For example, the program verifies that you enter a bankruptcy disposition date that is after the bankruptcy filing date.
+- Calculating the levy lien period expiration now asks if it's for a writ of attachment, which increases the levy lien period to 3 years in its calculation.
+
+### Changed
+- Some of the text throughout the program was edited for improved clarity. For example, the main menu choices now have "BANKRUPTCY" added to it so the user knows what that function is normally used for.
+
+
+## [0.3.0] - 2020-07-23
+
+### Added
+- The application info will display every time you return to the main menu.
+- Gave users option to quit before proceeding to questions to close a file, just in case any of the reasons to stop immediately applies to their file.
+- The Employer's Return menu has a new option choice just in case the response type doesn't match any of the more important categories. If the employer's response is simply correspondence without any important info (e.g., leave of absence, termination, etc.), then they can select the new option to continue.
+- Calculating the levy lien period: Now it can calculate with multiple bankruptcy stays. This is more useful for the Complex Levy Seniors.
+- Calculating the levy lien period: If the bankruptcy filing date is before the writ issued date, the user has to verify that the levy was not served during the automatic stay. If it was, they will get a message then returned to the main menu. If the levy was not served during the automatic stay, then the automatic stay days will be calculated slightly differently.
+- Calculating the levy lien period: For multiple bankruptcies, the program will now verify that the new bankruptcy filing is after the previous bankruptcy's outcome.
+
+### Changed
+- Optimized code to make it easier to understand and read.
+- Added newline characters in certain areas of the program to improve legibility for the user.
+- For the closing files module, program now says to check the File Ledger instead of the Judgment Ledger.
+- Changed how the levy lien period is calculated. Before, I used the days spent NOT in bankruptcy, which made calculating dates more difficult. I switched over to using the days spent IN bankruptcy instead, which uses more simple logic, improving code readability.
+
+### Fixed
+- Date validation should now work properly and not give a ValueError no matter what the user enters.
+
+
+## [0.2.0] - 2020-06-24
+### Added
+- The application's name, version, and copyright information will display when it loads for the first time.
+- Users have to press Enter to continue after receiving an invalid input message. This way the error message is more noticeable to users.
+- Program correctly computes the levy lien period expiration if the bankruptcy was filed BEFORE the writ was issued.
+- On a similar note, the program will also correctly compute the levy lien period if the bankruptcy disposition occurred BEFORE the writ was issued as well, which is just the writ issued date plus two years.
+- Users will be forced to enter the bankruptcy disposition date again if the disposition date is before the bankruptcy filing date.
+- The terminal will clear at certain points of running the program in order to avoid text clutter.
+
+### Changed
+- Rearranged certain lines of code to improve code readability.
+- Renamed certain variables to clarify the intent of those variables, thus improving code readability.
+- Added and removed newline characters in the code to improve readability for the user.
+- Converted certain while loops to the new walrus operator that was added with Python 3.8. This removes the need to ask the user the same question twice, especially when validating user input. Also improves code readability.
+- Changed the text that displays when quitting the program.
+- Made "MAIN MENU" text more noticeable.
+- Improved efficiency of questioning for closing EWO files by rearranging certain questions.
+- Edited certain questions to clarify how the user should respond.
+- Removed redundant "EWO or EOJ" questions. User only has to answer once now.
+- Certain questions will ask if an event occurred before/after a specific date instead of forcing the user to calculate the date on their own.
+- Clarified the question when asking if we received a response from the employer.
+
+### Fixed
+- Program should now close without the traceback error (NameError: name: 'exit' is not defined).
+- Computing duration between two dates is more accurate now that it takes leap years into account.
+- When entering dates, the program now correctly verifies if that date exists, including February 29 for leap years.
+- No more input errors if the user enters a leading space with their response.
+
+### Removed
+- Removed redundant code.
+
+
+## [0.1.0] - 2020-06-11
+- First release version!
+- There are many things I still need to fix and add, but I started this changelog to begin keeping track of changes.
