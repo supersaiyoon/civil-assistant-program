@@ -67,7 +67,7 @@ def get_date(question):
 
 # important variables
 today = date.today()
-hundred_eighty_ago = format_date(today + relativedelta(days =- 180))
+hundred_eighty_ago = format_date(today - timedelta(days = 180))
 two_years_ago = format_date(today + relativedelta(years =- 2))
 
 
@@ -419,7 +419,7 @@ def compute_lien_period():
                     break
 
             # need to check if lien expired before new BK filing
-            actual_lien_exp = norm_lien_exp + relativedelta(days =+ (days_in_bk + 1))
+            actual_lien_exp = norm_lien_exp + timedelta(days = (days_in_bk + 1))
             if bk_filing >= actual_lien_exp:
                 print(f'\n\tThe levy lien period already {cyan_font}expired on {format_date(actual_lien_exp)}{reset_font}.')
                 print('\tThere is no need to calculate any more bankruptcy stays.')
@@ -444,7 +444,7 @@ def compute_lien_period():
     
     print_title()
     print(f'{days_in_bk} days spent in automatic stay. Therefore...\n')
-    actual_lien_exp = norm_lien_exp + relativedelta(days =+ (days_in_bk + 1))
+    actual_lien_exp = norm_lien_exp + timedelta(days = (days_in_bk + 1))
 
     if actual_lien_exp <= today:
         print(f'\tLevy lien period {red_font}EXPIRED on {format_date(actual_lien_exp)}{reset_font}.')

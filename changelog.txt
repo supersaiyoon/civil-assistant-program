@@ -23,9 +23,9 @@ TYPES OF CHANGES:
 - Add ability to copy text to clipboard
 - Add employer stay date comment and copy to clipboard
 - Convert relativedelta to timedelta as needed
-- Add timer when returning to main menu instead of waiting for user input
 - Improve menu layout...somehow
 - Add intro/loading screen
+- Add ability to hide terminal cursor
 
 
 ## [2.0.0] - TBD
