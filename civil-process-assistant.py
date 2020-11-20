@@ -44,11 +44,6 @@ no_close_msg = '\n\t***DO NOT CLOSE THE FILE***'
 
 close_msg = '\n\t***CLOSE THE FILE***'
 
-# important variables
-today = date.today()
-hundred_eighty_ago = format_date(today + relativedelta(days =- 180))
-two_years_ago = format_date(today + relativedelta(years =- 2))
-
 
 def format_date(user_date):
     return user_date.strftime('%m/%d/%Y')
@@ -66,6 +61,12 @@ def get_date(question):
         except ValueError:
             input('\nInvalid date entered. Press Enter to continue...')
     return user_date
+
+
+# important variables
+today = date.today()
+hundred_eighty_ago = format_date(today + relativedelta(days =- 180))
+two_years_ago = format_date(today + relativedelta(years =- 2))
 
 
 def get_answer(question):
