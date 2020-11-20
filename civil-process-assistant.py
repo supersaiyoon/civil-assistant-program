@@ -1,6 +1,6 @@
 # import modules
 from datetime import datetime, date, timedelta
-from sys import exit
+import sys
 import time
 import os
 
@@ -8,12 +8,12 @@ import os
 from colorama import Fore, Back, Style
 from dateutil.relativedelta import relativedelta
 
+
 # app info
 app_author = 'Brian Yoon'
 app_name = 'The Civil Process Assistant'
 app_version = 'Version 2.0.0'
 app_copyright = f'Copyright (C) 2020 {app_author}'
-
 app_info = [app_name, app_version, app_copyright]
 
 
@@ -37,6 +37,7 @@ def print_title():
 
 
 def press_enter():
+    hide_cursor()
     input('\nPress Enter to continue...')
 
 
@@ -46,6 +47,38 @@ no_close_msg = '\n\t***DO NOT CLOSE THE FILE***'
 close_msg = '\n\t***CLOSE THE FILE***'
 
 
+# functions for showing/hiding cursor
+if os.name == 'nt':
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int),
+                    ("visible", ctypes.c_byte)]
+
+def hide_cursor():
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+
+def show_cursor():
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        sys.stdout.write("\033[?25h")
+        sys.stdout.flush()
+
+
 def format_date(user_date):
     return user_date.strftime('%m/%d/%Y')
 
@@ -53,6 +86,7 @@ def format_date(user_date):
 def get_date(question):
     while True:
         print_title()
+        show_cursor()
         user_date = input(question).strip()
         if user_date == '0':
             break
@@ -60,6 +94,7 @@ def get_date(question):
             user_date = datetime.strptime(user_date, "%m/%d/%y").date()
             break
         except ValueError:
+            hide_cursor()
             print('\nInvalid date entered.')
             time.sleep(2)
     return user_date
@@ -77,10 +112,12 @@ def get_answer(question):
         print(question)
         print('\n\t[1] Yes    [2] No    [0] Quit to Main Menu\n')
         
+        show_cursor()
         answer = input('> ').lower().strip()
         if answer in ['0', '1', '2']:
             break
         else:
+            hide_cursor()
             print(f'\nThat\'s not a valid choice!')
             time.sleep(2)
     return answer
@@ -133,11 +170,13 @@ def eoj_inquiry():
                     print('\t[1] Bank levy')
                     print('\t[2] Third party levy\n')
                     
+                    show_cursor()
                     answer = input('> ').lower().strip()
                 
                     if answer in ['0', '1', '2']:
                         break
                     else:
+                        hide_cursor()
                         print(f'\n"{answer}" is not a valid choice!')
                         time.sleep(2)
 
@@ -196,10 +235,12 @@ def ewo_inquiry():
             for item in er_menu:
                 print(f'\t[{item}] {er_menu[item]}')
             
+            show_cursor()
             answer = input('\n> ').lower().strip()
             if answer in ['0', '1', '2', '3', '4', '5', '6']:
                 break
             else:
+                hide_cursor()
                 print(f'\n"{answer}" is not a valid choice!')
                 time.sleep(2)
 
@@ -376,11 +417,13 @@ def compute_lien_period():
 
         # this loop ensures that the bk disposition date is AFTER the bk filing date
         while True:
+            show_cursor()
             bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
             if bk_disp == '0':
                 return
 
             if bk_disp < bk_filing:
+                hide_cursor()
                 print('\nBankruptcy disposition cannot occur before bankrupty was filed.')
                 time.sleep(2)
             else:
@@ -408,11 +451,13 @@ def compute_lien_period():
                 break
             
             while True:
+                show_cursor()
                 bk_filing = get_date(f'Enter {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy): ')
                 if bk_filing == '0':
                     return
                 
                 if bk_filing < bk_disp:
+                    hide_cursor()
                     print('\nNew bankruptcy filing cannot occur before the previous bankruptcy outcome.')
                     time.sleep(2)
                 else:
@@ -428,11 +473,13 @@ def compute_lien_period():
 
             # this is repeated code from above. make this a function?
             while True:
+                show_cursor()
                 bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
                 if bk_disp == '0':
                     return
 
                 if bk_disp < bk_filing:
+                    hide_cursor()
                     print('\nBankruptcy disposition cannot occur before bankrupty was filed.')
                     time.sleep(2)
                 else:
@@ -483,7 +530,8 @@ def main_menu():
 
         for item in menu_items:
             print(f'\t[{item}] {menu_items[item]}')
-
+        
+        show_cursor()
         menu_choice = input('\n> ').lower().strip()
 
         if menu_choice == '0':
@@ -495,10 +543,12 @@ def main_menu():
         elif menu_choice == '3':
             can_i_close()
         else:
+            hide_cursor()
             print(f'\n"{menu_choice}" is not a valid choice!')
             time.sleep(2)
             continue
         print_title()
+        hide_cursor()
         print('Returning to the main menu...')
         time.sleep(2)
 
@@ -507,7 +557,7 @@ def main():
     main_menu()
     print(f'\n{app_name} terminated. Goodbye.')
     time.sleep(2)
-    exit()
+    sys.exit()
 
 
 if __name__ == '__main__':
