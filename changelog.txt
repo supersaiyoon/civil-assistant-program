@@ -20,12 +20,18 @@ TYPES OF CHANGES:
 - Add reverse service date calculator
 - Add MOD breakdown commenting tool
 - Add COE appeal period date calculator
+- Add ability to copy text to clipboard
+- Add employer stay date comment and copy to clipboard
+- Convert relativedelta to timedelta as needed
+- Add timer when returning to main menu instead of waiting for user input
+- Improve menu layout...somehow
 
 
 ## [2.0.0] - TBD
 
 ### Added
 - Users can now return to the main menu at any time in the program by typing the number 0.
+- Added color to text to point out key words.
 
 ### Changed
 - Significant changes were made to the code in order to allow the user to return to the main menu at any time.
