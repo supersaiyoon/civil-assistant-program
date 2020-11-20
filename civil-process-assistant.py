@@ -1,11 +1,12 @@
 # import modules
 from datetime import datetime, date, timedelta
-from dateutil.relativedelta import relativedelta
 from sys import exit
+import time
 import os
 
 # third party modules
 from colorama import Fore, Back, Style
+from dateutil.relativedelta import relativedelta
 
 # app info
 app_author = 'Brian Yoon'
@@ -59,7 +60,8 @@ def get_date(question):
             user_date = datetime.strptime(user_date, "%m/%d/%y").date()
             break
         except ValueError:
-            input('\nInvalid date entered. Press Enter to continue...')
+            print('\nInvalid date entered.')
+            time.sleep(2)
     return user_date
 
 
@@ -80,7 +82,7 @@ def get_answer(question):
             break
         else:
             print(f'\nThat\'s not a valid choice!')
-            press_enter()
+            time.sleep(2)
     return answer
 
 
@@ -137,7 +139,7 @@ def eoj_inquiry():
                         break
                     else:
                         print(f'\n"{answer}" is not a valid choice!')
-                        press_enter()
+                        time.sleep(2)
 
                 if answer == '0':
                     answer = 'quit'
@@ -199,7 +201,7 @@ def ewo_inquiry():
                 break
             else:
                 print(f'\n"{answer}" is not a valid choice!')
-                press_enter()
+                time.sleep(2)
 
         if answer == '0':
             answer = 'quit'
@@ -225,7 +227,7 @@ def ewo_inquiry():
                 answer = 'no close'
                 break
         elif answer == '5':
-            answer = get_answer(f'Did the employee {cyan_font}terminate{reset_font} their employment before {cyan_font}{hundred_eighty_ago}{reset_font}?')
+            answer = get_answer(f'Did the employee {cyan_font}terminate{reset_font} their employment {cyan_font}before {hundred_eighty_ago}{reset_font}?')
             if answer == '0':
                 answer = 'quit'
                 break
@@ -336,6 +338,7 @@ def can_i_close():
         print(close_msg)
     elif answer == 'no close':
         print(no_close_msg)
+    press_enter()
 
 
 def compute_lien_period():
@@ -363,11 +366,12 @@ def compute_lien_period():
             print(f'\n\t{red_font}WARNING!{reset_font} The debtor filed for bankruptcy before the writ was issued. Verify that we did not serve the levy during the automatic stay.')
             press_enter()
 
-            answer = get_answer('Was the levy served during the automatic stay?')
+            answer = get_answer(f'Was the levy {cyan_font}served during the automatic stay{reset_font}?')
             if answer == '0':
                 return
             elif answer == '1':
                 print('\n\tRefer to the bankruptcy training manual on how to proceed from here.')
+                press_enter()
                 return
 
         # this loop ensures that the bk disposition date is AFTER the bk filing date
@@ -378,13 +382,14 @@ def compute_lien_period():
 
             if bk_disp < bk_filing:
                 print('\nBankruptcy disposition cannot occur before bankrupty was filed.')
-                press_enter()
+                time.sleep(2)
             else:
                 break
         print()
 
         if bk_disp < writ_issued:
             print('\tThere is no need to include any bankruptcies that ended before the writ was issued.')
+            press_enter()
             return
 
         norm_lien_exp = writ_issued + relativedelta(years =+ lien_duration)
@@ -397,7 +402,6 @@ def compute_lien_period():
         # add more days to days_in_bk if there are multiple BKs
         while True:
             answer = get_answer(f'Do you have {cyan_font}another bankruptcy outcome{reset_font} that occurred {cyan_font}after{reset_font} the previous bankruptcy outcome (This is more common with complex levies)?')
-
             if answer == '0':
                 return
             elif answer == '2':
@@ -410,7 +414,7 @@ def compute_lien_period():
                 
                 if bk_filing < bk_disp:
                     print('\nNew bankruptcy filing cannot occur before the previous bankruptcy outcome.')
-                    press_enter()
+                    time.sleep(2)
                 else:
                     break
 
@@ -419,6 +423,7 @@ def compute_lien_period():
             if bk_filing >= actual_lien_exp:
                 print(f'\n\tThe levy lien period already {cyan_font}expired on {format_date(actual_lien_exp)}{reset_font}.')
                 print('\tThere is no need to calculate any more bankruptcy stays.')
+                press_enter()
                 return
 
             # this is repeated code from above. make this a function?
@@ -429,7 +434,7 @@ def compute_lien_period():
 
                 if bk_disp < bk_filing:
                     print('\nBankruptcy disposition cannot occur before bankrupty was filed.')
-                    press_enter()
+                    time.sleep(2)
                 else:
                     break
             print()
@@ -445,6 +450,7 @@ def compute_lien_period():
         print(f'\tLevy lien period {red_font}EXPIRED on {format_date(actual_lien_exp)}{reset_font}.')
     else:
         print(f'\tLevy lien period {cyan_font}expires on {format_date(actual_lien_exp)}{reset_font}.')
+    press_enter()
 
 
 def compute_employer_stay():
@@ -455,6 +461,7 @@ def compute_employer_stay():
 
     stay_date = timestamp + timedelta(days = 180)
     print(f'\n\tEmployer is to stay the wage garnishment until {cyan_font}{format_date(stay_date)}{reset_font}.')
+    press_enter()
 
 
 menu_items = {
@@ -489,14 +496,17 @@ def main_menu():
             can_i_close()
         else:
             print(f'\n"{menu_choice}" is not a valid choice!')
-            press_enter()
+            time.sleep(2)
             continue
-        input('\nReturning to the main menu. Press Enter to continue...')
+        print_title()
+        print('Returning to the main menu...')
+        time.sleep(2)
 
 
 def main():
     main_menu()
-    print(app_name, 'terminated. Goodbye.')
+    print(f'\n{app_name} terminated. Goodbye.')
+    time.sleep(2)
     exit()
 
 
