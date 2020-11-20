@@ -25,7 +25,6 @@ TYPES OF CHANGES:
 - Convert relativedelta to timedelta as needed
 - Improve menu layout...somehow
 - Add intro/loading screen
-- Add ability to hide terminal cursor
 
 
 ## [2.0.0] - TBD
@@ -37,6 +36,7 @@ TYPES OF CHANGES:
 ### Changed
 - Made significant changes to the code in order for the new features to work.
 - Returning to the main menu is now automatic; pressing Enter key is no longer required.
+- Text cursor is now hidden when messages are diplayed.
 
 
 ## [1.0] - 2020-07-24
