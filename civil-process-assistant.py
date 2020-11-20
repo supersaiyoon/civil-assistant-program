@@ -4,14 +4,22 @@ from dateutil.relativedelta import relativedelta
 from sys import exit
 import os
 
+# third party modules
+from colorama import Fore, Back, Style
 
 # app info
 app_author = 'Brian Yoon'
 app_name = 'The Civil Process Assistant'
-app_version = 'Version 2.0'
+app_version = 'Version 2.0.0'
 app_copyright = f'Copyright (C) 2020 {app_author}'
 
 app_info = [app_name, app_version, app_copyright]
+
+
+# variables for calling colors
+cyan_font = Fore.CYAN
+red_font = Fore.RED
+reset_font = Style.RESET_ALL
 
 
 # useful generic functions
@@ -36,8 +44,12 @@ no_close_msg = '\n\t***DO NOT CLOSE THE FILE***'
 
 close_msg = '\n\t***CLOSE THE FILE***'
 
+# important variables
+today = date.today()
+hundred_eighty_ago = format_date(today + relativedelta(days =- 180))
+two_years_ago = format_date(today + relativedelta(years =- 2))
 
-# manipulating datetime objects
+
 def format_date(user_date):
     return user_date.strftime('%m/%d/%Y')
 
@@ -56,12 +68,6 @@ def get_date(question):
     return user_date
 
 
-# important variables
-today = date.today()
-hundred_eighty_ago = format_date(today + relativedelta(days =- 180))
-two_years_ago = format_date(today + relativedelta(years =- 2))
-
-
 def get_answer(question):
     while True:
         print_title()
@@ -78,13 +84,13 @@ def get_answer(question):
 
 
 def check_hwft():
-    answer = get_answer('Are we instructed to hold writ full term? ')
+    answer = get_answer(f'Are we instructed to {cyan_font}hold writ full term{reset_font}? ')
     if answer == '0':
         answer = 'quit'
     elif answer == '2':
         answer = 'close'
     elif answer == '1':
-        answer = get_answer('Did the writ expire? ')
+        answer = get_answer(f'Did the {cyan_font}writ expire{reset_font}? ')
         if answer == '0':
             answer = 'quit'
         elif answer == '1':
@@ -97,7 +103,7 @@ def check_hwft():
 def eoj_inquiry():
     while True:
         # eoj question 1
-        answer = get_answer('Did we receive a Memorandum of Garnishee (MOG)?')
+        answer = get_answer(f'Did we receive a {cyan_font}Memorandum of Garnishee (MOG){reset_font}?')
         if answer == '0':
             answer = 'quit'
             break
@@ -107,7 +113,7 @@ def eoj_inquiry():
             mog_received = False
         
         if mog_received:
-            answer = get_answer('Are we expecting $$ per MOG (including joint accounts or exempt Social Security funds)?')
+            answer = get_answer(f'Are we {cyan_font}expecting $$ per MOG{reset_font} (including joint accounts or exempt Social Security funds)?')
             if answer == '0':
                 answer = 'quit'
                 break
@@ -120,7 +126,7 @@ def eoj_inquiry():
             if expect_funds:
                 while True:
                     print_title()
-                    print('Are you inquiring about a bank levy or a third party levy?\n')
+                    print(f'Are you inquiring about a {cyan_font}bank levy{reset_font} or a {cyan_font}third party levy{reset_font}?\n')
                     print('\t[1] Bank levy')
                     print('\t[2] Third party levy\n')
                     
@@ -129,13 +135,14 @@ def eoj_inquiry():
                     if answer in ['0', '1', '2']:
                         break
                     else:
-                        print(f'That\'s not a valid choice!\n')
+                        print(f'\n"{answer}" is not a valid choice!')
+                        press_enter()
 
                 if answer == '0':
                     answer = 'quit'
                     break
                 elif answer == '1':
-                    answer = get_answer('Did we receive and pay out all $$ stated on MOG?')
+                    answer = get_answer(f'Did we {cyan_font}receive and pay out all $${reset_font} stated on MOG?')
                     if answer == '0':
                         answer = 'quit'
                         break
@@ -144,7 +151,7 @@ def eoj_inquiry():
                         break
         
         # eoj question 2
-        answer = get_answer(f'Was the writ issued before {two_years_ago}?')
+        answer = get_answer(f'Was the {cyan_font}writ issued before {two_years_ago}{reset_font}?')
         if answer == '0':
             answer = 'quit'
             break
@@ -160,7 +167,7 @@ def eoj_inquiry():
 def ewo_inquiry():
     while True:
         # ewo question 1
-        answer = get_answer(f'Was any $$ posted on or after {hundred_eighty_ago}?')
+        answer = get_answer(f'Was any $$ posted {cyan_font}on or after {hundred_eighty_ago}{reset_font}?')
         if answer == '0':
             answer = 'quit'
             break
@@ -181,7 +188,7 @@ def ewo_inquiry():
         while True:
             print_title()
             
-            print('What was the MOST RECENT communication from the employer?\n')
+            print(f'What was the {cyan_font}most recent{reset_font} communication from the employer?\n')
 
             for item in er_menu:
                 print(f'\t[{item}] {er_menu[item]}')
@@ -190,7 +197,7 @@ def ewo_inquiry():
             if answer in ['0', '1', '2', '3', '4', '5', '6']:
                 break
             else:
-                print(f'That\'s not a valid choice!\n')
+                print(f'\n"{answer}" is not a valid choice!')
                 press_enter()
 
         if answer == '0':
@@ -206,7 +213,7 @@ def ewo_inquiry():
             # no follow-up question. ask ewo question #3
             pass
         elif answer == '4':
-            answer = get_answer(f'Did the intervening levy or employee\'s leave of absence start before {two_years_ago}?')
+            answer = get_answer(f'Did the {cyan_font}intervening levy{reset_font} / {cyan_font}employee\'s leave of absence{reset_font} start before {cyan_font}{two_years_ago}{reset_font}?')
             if answer == '0':
                 answer = 'quit'
                 break
@@ -217,7 +224,7 @@ def ewo_inquiry():
                 answer = 'no close'
                 break
         elif answer == '5':
-            answer = get_answer(f'Did the employee terminate their employment before {hundred_eighty_ago}?')
+            answer = get_answer(f'Did the employee {cyan_font}terminate{reset_font} their employment before {cyan_font}{hundred_eighty_ago}{reset_font}?')
             if answer == '0':
                 answer = 'quit'
                 break
@@ -232,7 +239,7 @@ def ewo_inquiry():
             pass
 
         # ewo question 3
-        answer = get_answer(f'Did we serve the EWO before {hundred_eighty_ago}?')
+        answer = get_answer(f'Did we serve the EWO before {cyan_font}{hundred_eighty_ago}{reset_font}?')
         if answer == '0':
             answer = 'quit'
             break
@@ -246,7 +253,7 @@ def ewo_inquiry():
 
 
 def judgment_inquiry():
-    answer = get_answer('Is the judgment for a Criminal or Family Law case? ')
+    answer = get_answer(f'Is the judgment for a {cyan_font}Criminal{reset_font} or {cyan_font}Family Law case{reset_font}? ')
     if answer == '0':
         answer = 'quit'
     elif answer == '1':
@@ -257,7 +264,7 @@ def judgment_inquiry():
 
 
 def is_ewo():
-    return get_answer('Is the service type an EWO? ')
+    return get_answer(f'Is the service type an {cyan_font}EWO{reset_font}? ')
 
 
 def bk_inquiry():
@@ -267,7 +274,7 @@ def bk_inquiry():
     elif answer == '2':
         answer = 'no close'
     elif answer == '1':
-        answer = get_answer('Did the employer\'s stay expire? ')
+        answer = get_answer(f'Did the {cyan_font}employer\'s stay expire{reset_font}? ')
         if answer == '0':
             answer = 'quit'
         elif answer == '1':
@@ -291,21 +298,21 @@ def can_i_close():
         if (answer == '0') or (answer == '2'):
             return
         
-        answer = get_answer('Is the levy released?')
+        answer = get_answer(f'Is the {cyan_font}levy released{reset_font}?')
         if answer == '0':
             return
         elif answer == '1':
             answer = check_hwft()
             break
 
-        answer = get_answer('Is there a pending bankruptcy?')
+        answer = get_answer(f'Is there a {cyan_font}pending bankruptcy{reset_font}?')
         if answer == '0':
             return
         elif answer == '1':
             answer = bk_inquiry()
             break
         
-        answer = get_answer('Did the judgment expire?')
+        answer = get_answer(f'Did the {cyan_font}judgment expire{reset_font}?')
         if answer == '0':
             return
         elif answer == '1':
@@ -334,7 +341,7 @@ def compute_lien_period():
     while True:
         print_title()
 
-        answer = get_answer('Are you calculating for an attachment lien?')
+        answer = get_answer(f'Are you calculating for an {cyan_font}attachment lien{reset_font}?')
         if answer == '0':
             return
         elif answer == '1':
@@ -342,17 +349,17 @@ def compute_lien_period():
         elif answer == '2':
             lien_duration = 2
 
-        writ_issued = get_date('Enter writ issued date (mm/dd/yy): ')
+        writ_issued = get_date(f'Enter {cyan_font}writ issued{reset_font} date (mm/dd/yy): ')
         if writ_issued == '0':
             return
         
-        bk_filing = get_date('Enter bankruptcy filing date (mm/dd/yy): ')
+        bk_filing = get_date(f'Enter {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy): ')
         if bk_filing == '0':
             return
         
         # if bk was filed before writ was issued, check if we served levy during automatic stay
         if bk_filing <= writ_issued:
-            print('\n\tWARNING! The debtor filed for bankruptcy before the writ was issued. Verify that we did not serve the levy during the automatic stay.')
+            print(f'\n\t{red_font}WARNING!{reset_font} The debtor filed for bankruptcy before the writ was issued. Verify that we did not serve the levy during the automatic stay.')
             press_enter()
 
             answer = get_answer('Was the levy served during the automatic stay?')
@@ -364,7 +371,7 @@ def compute_lien_period():
 
         # this loop ensures that the bk disposition date is AFTER the bk filing date
         while True:
-            bk_disp = get_date('Enter bankruptcy disposition date (mm/dd/yy): ')
+            bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
             if bk_disp == '0':
                 return
 
@@ -377,7 +384,7 @@ def compute_lien_period():
 
         if bk_disp < writ_issued:
             print('\tThere is no need to include any bankruptcies that ended before the writ was issued.')
-            press_enter()
+            return
 
         norm_lien_exp = writ_issued + relativedelta(years =+ lien_duration)
 
@@ -388,7 +395,7 @@ def compute_lien_period():
 
         # add more days to days_in_bk if there are multiple BKs
         while True:
-            answer = get_answer('Do you have another bankruptcy outcome that occurred after the previous bankruptcy outcome (This is more common with complex levies)?')
+            answer = get_answer(f'Do you have {cyan_font}another bankruptcy outcome{reset_font} that occurred {cyan_font}after{reset_font} the previous bankruptcy outcome (This is more common with complex levies)?')
 
             if answer == '0':
                 return
@@ -396,7 +403,7 @@ def compute_lien_period():
                 break
             
             while True:
-                bk_filing = get_date('Enter bankruptcy filing date (mm/dd/yy): ')
+                bk_filing = get_date(f'Enter {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy): ')
                 if bk_filing == '0':
                     return
                 
@@ -409,13 +416,13 @@ def compute_lien_period():
             # need to check if lien expired before new BK filing
             actual_lien_exp = norm_lien_exp + relativedelta(days =+ (days_in_bk + 1))
             if bk_filing >= actual_lien_exp:
-                print(f'\n\tThe levy lien period already expired on {format_date(actual_lien_exp)}.')
+                print(f'\n\tThe levy lien period already {cyan_font}expired on {format_date(actual_lien_exp)}{reset_font}.')
                 print('\tThere is no need to calculate any more bankruptcy stays.')
                 return
 
             # this is repeated code from above. make this a function?
             while True:
-                bk_disp = get_date('Enter bankruptcy disposition date (mm/dd/yy): ')
+                bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
                 if bk_disp == '0':
                     return
 
@@ -429,25 +436,24 @@ def compute_lien_period():
             days_in_bk += (bk_disp - bk_filing).days
         break
     
-    print(f'\n{days_in_bk} days spent in automatic stay. Therefore...\n')
+    print_title()
+    print(f'{days_in_bk} days spent in automatic stay. Therefore...\n')
     actual_lien_exp = norm_lien_exp + relativedelta(days =+ (days_in_bk + 1))
 
     if actual_lien_exp <= today:
-        print(f'\tLevy lien period EXPIRED on {format_date(actual_lien_exp)}.')
+        print(f'\tLevy lien period {red_font}EXPIRED on {format_date(actual_lien_exp)}{reset_font}.')
     else:
-        print(f'\tLevy lien period expires on {format_date(actual_lien_exp)}.')
+        print(f'\tLevy lien period {cyan_font}expires on {format_date(actual_lien_exp)}{reset_font}.')
 
 
 def compute_employer_stay():
-    #calculate 180 days from sheriff timestamp
-
-    timestamp = get_date('Enter Sheriff timestamp date (mm/dd/yy): ')
+    timestamp = get_date(f'Enter {cyan_font}Sheriff timestamp{reset_font} date (mm/dd/yy): ')
 
     if timestamp == '0':
         return
 
     stay_date = timestamp + timedelta(days = 180)
-    print(f'\n\tEmployer is to stay the wage garnishment until {format_date(stay_date)}.')
+    print(f'\n\tEmployer is to stay the wage garnishment until {cyan_font}{format_date(stay_date)}{reset_font}.')
 
 
 menu_items = {
@@ -469,15 +475,8 @@ def main_menu():
 
         for item in menu_items:
             print(f'\t[{item}] {menu_items[item]}')
-        print()
 
-        while True:
-            menu_choice = input('> ').lower().strip()
-        
-            if menu_choice in menu_items:
-                break
-            else:
-                input('That\'s not a valid choice! Press Enter to try again.')
+        menu_choice = input('\n> ').lower().strip()
 
         if menu_choice == '0':
             break
@@ -487,8 +486,11 @@ def main_menu():
             compute_lien_period()
         elif menu_choice == '3':
             can_i_close()
-        print('\nReturning to the main menu...')
-        press_enter()
+        else:
+            print(f'\n"{menu_choice}" is not a valid choice!')
+            press_enter()
+            continue
+        input('\nReturning to the main menu. Press Enter to continue...')
 
 
 def main():
