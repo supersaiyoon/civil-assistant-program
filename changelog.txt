@@ -14,17 +14,15 @@ TYPES OF CHANGES:
 
 ## [Unreleased]
 - Possibly provide reason for closing the file?
-- Update "Can I close file?" process by converting wall of text into individual yes/no questions.
-- Add color; make things look more visually appealing.
 - Add service date calculator
 - Add reverse service date calculator
 - Add MOD breakdown commenting tool
 - Add COE appeal period date calculator
 - Add ability to copy text to clipboard
 - Add employer stay date comment and copy to clipboard
-- Convert relativedelta to timedelta as needed
 - Improve menu layout...somehow
 - Add intro/loading screen
+- Change program icon
 
 
 ## [2.0.0] - TBD
@@ -37,6 +35,7 @@ TYPES OF CHANGES:
 - Made significant changes to the code in order for the new features to work.
 - Returning to the main menu is now automatic; pressing Enter key is no longer required.
 - Text cursor is now hidden when messages are diplayed.
+- Converted wall of text at the beginning into  more questions to the "Can I close this file?" process.
 
 
 ## [1.0] - 2020-07-24

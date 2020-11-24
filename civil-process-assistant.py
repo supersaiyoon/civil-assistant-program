@@ -330,17 +330,26 @@ def bk_inquiry():
 
 def can_i_close():
     while True:
-        print('\nBefore starting, check the file for any of the following:\n')
-        print('\t1. Open service')
-        print('\t2. Pending Claim of Exemption')
-        print('\t3. $$ pending shown in the File Ledger (Look for $$ held for bankruptcy too!)\n')
-        print('If any of the above applies to your file, STOP. Do not close the file.')
-        print('If there are multiple services in the file, run this program for each service.\n')
-
-        # get_answer function below is clearing the above string. maybe change the above string into a y/n question instead?
-        answer = get_answer('Do you want to continue?')
-        if (answer == '0') or (answer == '2'):
+        answer = get_answer(f'Is there an {cyan_font}open service{reset_font}?')
+        if answer == '0':
             return
+        elif answer == '1':
+            answer = 'no close'
+            break
+
+        answer = get_answer(f'Is there a {cyan_font}pending Claim of Exemption{reset_font}?')
+        if answer == '0':
+            return
+        elif answer == '1':
+            answer = 'no close'
+            break
+
+        answer = get_answer(f'Is there {cyan_font}pending $$ in the File Ledger{reset_font}? Look for $$ held for bankruptcy too!')
+        if answer == '0':
+            return
+        elif answer == '1':
+            answer = 'no close'
+            break
         
         answer = get_answer(f'Is the {cyan_font}levy released{reset_font}?')
         if answer == '0':
