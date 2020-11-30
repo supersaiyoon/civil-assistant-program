@@ -14,7 +14,6 @@ TYPES OF CHANGES:
 
 ## [Unreleased]
 - Possibly provide reason for closing the file?
-- Add service date calculator
 - Add reverse service date calculator
 - Add MOD breakdown commenting tool
 - Add COE appeal period date calculator
@@ -30,6 +29,8 @@ TYPES OF CHANGES:
 ### Added
 - Users can now return to the main menu at any time in the program by typing the number 0.
 - Added color to text to point out key words.
+- Added service date calculator. This tool tells you what hearing dates we are accepting as of a date you specify.
+- Calculating the date for Request for Orders has been updated to count 23 court days instead of a mixture of calendar days and court days.
 
 ### Changed
 - Made significant changes to the code in order for the new features to work.

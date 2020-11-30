@@ -6,7 +6,8 @@ import os
 
 # third party modules
 from colorama import Fore, Back, Style
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta, MO, TH
+import holidays
 
 
 # app info
@@ -19,7 +20,9 @@ app_info = [app_name, app_version, app_copyright]
 
 # variables for calling colors
 cyan_font = Fore.CYAN
+green_font = Fore.GREEN
 red_font = Fore.RED
+yellow_font = Fore.YELLOW
 reset_font = Style.RESET_ALL
 
 
@@ -38,7 +41,7 @@ def print_title():
 
 def press_enter():
     hide_cursor()
-    input('\nPress Enter to continue...')
+    input(f'\n{yellow_font}Press Enter to continue...{reset_font}')
 
 
 # closing file messages
@@ -98,6 +101,75 @@ def get_date(question):
             print('\nInvalid date entered.')
             time.sleep(2)
     return user_date
+
+
+class county_holidays(holidays.HolidayBase):
+    def _populate(self, year):
+        name = 'New Year\'s Day'
+        self[date(year, 1, 1)] = name
+        if date(year, 1, 1).weekday() == 5:
+            self[date(year, 1, 1) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 1, 1).weekday() == 6:
+            self[date(year, 1, 1) + timedelta(days = 1)] = name + ' (Observed)'
+        
+        name = 'Martin Luther King Jr. Day'
+        self[date(year, 1, 1) + relativedelta(weekday = MO(+3))] = name
+
+        name = 'Lincoln\'s Birthday'
+        self[date(year, 2, 12)] = name
+        if date(year, 2, 12).weekday() == 5:
+            self[date(year, 2, 12) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 2, 12).weekday() == 6:
+            self[date(year, 2, 12) + timedelta(days = 1)] = name + ' (Observed)'
+        
+        name = 'Washington\'s Birthday'
+        self[date(year, 2, 1) + relativedelta(weekday = MO(+3))] = name
+        
+        name = 'Cesar Chavez Day'
+        self[date(year, 3, 31)] = name
+        if date(year, 3, 31).weekday() == 5:
+            self[date(year, 3, 31) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 3, 31).weekday() == 6:
+            self[date(year, 3, 31) + timedelta(days = 1)] = name + ' (Observed)'
+        
+        name = 'Memorial Day'
+        self[date(year, 5, 1) + relativedelta(day = 31, weekday = MO(-1))] = name
+                
+        name = 'Independence Day'
+        self[date(year, 7, 4)] = name
+        if date(year, 7, 4).weekday() == 5:
+            self[date(year, 7, 4) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 7, 4).weekday() == 6:
+            self[date(year, 7, 4) + timedelta(days = 1)] = name + ' (Observed)'
+
+        name = 'Labor Day'
+        self[date(year, 9, 1) + relativedelta(weekday = MO)] = name
+
+        name = 'Columbus Day'
+        self[date(year, 10, 1) + relativedelta(weekday = MO(+2))] = name
+
+        name = 'Veterans Day'
+        self[date(year, 11, 11)] = name
+        if date(year, 11, 11).weekday() == 5:
+            self[date(year, 11, 11) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 11, 11).weekday() == 6:
+            self[date(year, 11, 11) + timedelta(days = 1)] = name + ' (Observed)'
+        
+        name = 'Thanksgiving Day'
+        self[date(year, 11, 1) + relativedelta(weekday = TH(+4))] = name
+
+        name = 'Day after Thanksgiving'
+        self[date(year, 11, 1) + relativedelta(weekday = TH(+4)) + timedelta(days = 1)] = name
+
+        name = 'Christmas Day'
+        self[date(year, 12, 25)] = name
+        if date(year, 12, 25).weekday() == 5:
+            self[date(year, 12, 25) - timedelta(days = 1)] = name + ' (Observed)'
+        if date(year, 12, 25).weekday() == 6:
+            self[date(year, 12, 25) + timedelta(days = 1)] = name + ' (Observed)'
+
+holidays_list = county_holidays()
+holidays_list.observed = False
 
 
 # important variables
@@ -391,6 +463,95 @@ def can_i_close():
     press_enter()
 
 
+def acceptable_services():
+    #for day, name in county_holidays(years = 2020).items():
+    #    print(day, name)
+
+    start_date = get_date(f'When are the documents being submitted (mm/dd/yy)?: ')
+
+    if start_date == '0':
+        return
+
+    # compute 'temporary restraining order' hearing date accepted today
+    tro_deadline = start_date + timedelta(days = 15)
+
+    while (tro_deadline in holidays_list) or (tro_deadline.weekday() == 5) or (tro_deadline.weekday() == 6):
+        tro_deadline = tro_deadline + timedelta(days = 1)
+
+    # compute 'plaintiff's claim & order (in county)' hearing date accepted today
+    pco_in_deadline = start_date + timedelta(days = 25)
+
+    while (pco_in_deadline in holidays_list) or (pco_in_deadline.weekday() == 5) or (pco_in_deadline.weekday() == 6):
+        pco_in_deadline = pco_in_deadline + timedelta(days = 1)
+    
+    # compute 'plaintiff's claim & order (out of county)' hearing date accepted today
+    pco_out_deadline = start_date + timedelta(days = 30)
+
+    while (pco_out_deadline in holidays_list) or (pco_out_deadline.weekday() == 5) or (pco_out_deadline.weekday() == 6):
+        pco_out_deadline = pco_out_deadline + timedelta(days = 1)
+
+    # compute 'request for order' hearing date accepted today
+    # rfo_deadline = start_date + timedelta(days = 10)
+    rfo_deadline = start_date
+
+    court_day = 0
+
+    # change 23 -> 16 if we are mixing calendar days with court days
+    while court_day < 23:
+        rfo_deadline = rfo_deadline + timedelta(days = 1)
+        while (rfo_deadline in holidays_list) or (rfo_deadline.weekday() == 5) or (rfo_deadline.weekday() == 6):
+            rfo_deadline = rfo_deadline + timedelta(days = 1)
+        court_day += 1
+
+    # compute 'civil subpoena' hearing date accepted today
+    sub_deadline = start_date + timedelta(days = 20)
+
+    while (sub_deadline in holidays_list) or (sub_deadline.weekday() == 5) or (sub_deadline.weekday() == 6):
+        sub_deadline = sub_deadline + timedelta(days = 1)
+
+    service_dict = {
+        'Temporary Restraining Order': tro_deadline,
+        'Plaintiff\'s Claim & Order (in county)': pco_in_deadline,
+        'Plaintiff\'s Claim & Order (out of county)': pco_out_deadline,
+        'Request for Order': rfo_deadline,
+        'Subpoena (Civil)': sub_deadline
+    }
+
+    title_column_one = 'Document Type'
+    title_column_two = 'Hearing Date'
+    
+    # table automatically adjusts column width
+    column_one_width = len(title_column_one)
+    column_two_width = len(title_column_two)
+
+    for key in service_dict:
+        if len(key) > column_one_width:
+            column_one_width = len(key)
+
+    if len(format_date(start_date)) > column_two_width:
+        column_two_width = len(format_date(start_date))
+
+    # final column width
+    column_one_width += 4
+    column_two_width += 4
+
+    horizontal_line = '+' + ('-' * column_one_width) + '+' + ('-' * column_two_width) + '+'
+
+    print_title()
+    print(f'{green_font}Hearing Dates accepted as of {format_date(start_date)}{reset_font}:')
+    print(horizontal_line)
+    print(f'|{cyan_font}{title_column_one.center(column_one_width)}{reset_font}|{cyan_font}{title_column_two.center(column_two_width)}{reset_font}|')
+    print(horizontal_line)
+
+    
+    for service in service_dict:
+        deadline = format_date(service_dict[service])
+        print(f'|  {green_font}{service.ljust(column_one_width - 2)}{reset_font}|{deadline.center(column_two_width)}|')
+        print(horizontal_line)
+    
+    press_enter()
+
+
 def compute_lien_period():
     while True:
         print_title()
@@ -521,9 +682,10 @@ def compute_employer_stay():
 
 
 menu_items = {
-    '1': 'Bankruptcy: Get EWO stay expiration date for employer',
-    '2': 'Bankruptcy: Get levy lien period expiration date',
-    '3': 'Can I close this file?',
+    '1': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
+    '2': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
+    '3': f'{cyan_font}Miscellaneous:{reset_font} Can I close this file?',
+    '4': f'{cyan_font}Services:{reset_font} What Hearing Dates are we accepting?',
     '0': 'QUIT'
     }
 
@@ -551,6 +713,8 @@ def main_menu():
             compute_lien_period()
         elif menu_choice == '3':
             can_i_close()
+        elif menu_choice == '4':
+            acceptable_services()
         else:
             hide_cursor()
             print(f'\n"{menu_choice}" is not a valid choice!')
