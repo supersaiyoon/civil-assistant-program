@@ -11,17 +11,7 @@ TYPES OF CHANGES:
 - "### Removed" for now removed features.
 - "### Fixed" for any bug fixes.
 - "### Security" in case of vulnerabilities.
-
-## [Unreleased]
-- Possibly provide reason for closing the file?
-- Add reverse service date calculator
-- Add MOD breakdown commenting tool
-- Add COE appeal period date calculator
-- Add ability to copy text to clipboard
-- Add employer stay date comment and copy to clipboard
-- Improve menu layout...somehow
-- Add intro/loading screen
-- Change program icon
+- "## Unreleased" for features in progress.
 
 
 ## [2.0.0] - TBD
