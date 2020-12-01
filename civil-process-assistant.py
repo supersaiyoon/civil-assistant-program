@@ -8,6 +8,7 @@ import os
 from colorama import Fore, Back, Style
 from dateutil.relativedelta import relativedelta, MO, TH
 import holidays
+import pyperclip
 
 
 # app info
@@ -463,6 +464,28 @@ def can_i_close():
     press_enter()
 
 
+def compute_coe_appeal():
+    order_date = get_date(f'What is the {cyan_font}date of the COE order{reset_font} (mm/dd/yy)? ')
+    if order_date == '0':
+        return
+
+    case_type = get_answer(f'Is this for a {cyan_font}limited civil case{reset_font}?')
+    if case_type == '0':
+        return
+    
+    if case_type == '1':
+        order_date += timedelta(days = 31)
+        pyperclip.copy('Funds due to the creditor to be held 30 days (limited) pending expiration of appeal period')
+    elif case_type == '2':
+        order_date += timedelta(days = 61)
+        pyperclip.copy('Funds due to the creditor to be held 60 days (unlimited) pending expiration of appeal period')
+
+    print_title()
+    print(f'The appeal period {cyan_font}expires on {format_date(order_date)}{reset_font}.\n')
+    print(f'{cyan_font}(Boilerplate comment copied! Now paste it in File Actions.){reset_font}')
+    press_enter()
+
+
 def service_deadline():
     hearing_date = get_date('What is the hearing date of the document (mm/dd/yy)? ')
 
@@ -753,8 +776,9 @@ menu_items = {
     '1': f'{cyan_font}Miscellaneous:{reset_font} Can I close this file?',
     '2': f'{cyan_font}Services:{reset_font} What hearing dates are we accepting as of _____?',
     '3': f'{cyan_font}Services:{reset_font} What is the last day we can receive a hearing date of _____?',
-    '4': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
-    '5': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
+    '4': f'{cyan_font}Claim of Exemption:{reset_font} When does the appeal period expire?',
+    '5': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
+    '6': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
     '0': 'QUIT'
     }
 
@@ -783,8 +807,10 @@ def main_menu():
         elif menu_choice == '3':
             service_deadline()
         elif menu_choice == '4':
-            compute_employer_stay()
+            compute_coe_appeal()
         elif menu_choice == '5':
+            compute_employer_stay()
+        elif menu_choice == '6':
             compute_lien_period()
         else:
             hide_cursor()
