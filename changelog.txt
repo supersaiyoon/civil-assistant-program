@@ -21,6 +21,7 @@ TYPES OF CHANGES:
 - Added color to text to point out key words.
 - Added service date calculator. This tool tells you what hearing dates we are accepting as of a date you specify.
 - Calculating the date for Request for Orders has been updated to count 23 court days instead of a mixture of calendar days and court days.
+- Added reverse service date calculator. This tool will tell you the last day we can accept the document with a specified hearing date.
 
 ### Changed
 - Made significant changes to the code in order for the new features to work.

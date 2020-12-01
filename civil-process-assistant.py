@@ -98,7 +98,7 @@ def get_date(question):
             break
         except ValueError:
             hide_cursor()
-            print('\nInvalid date entered.')
+            print(f'\n{red_font}Invalid date entered.{reset_font}')
             time.sleep(2)
     return user_date
 
@@ -182,7 +182,7 @@ def get_answer(question):
     while True:
         print_title()
         print(question)
-        print('\n\t[1] Yes    [2] No    [0] Quit to Main Menu\n')
+        print(f'\n\t[{yellow_font}1{reset_font}] Yes    [{yellow_font}2{reset_font}] No    [{yellow_font}0{reset_font}] Quit to Main Menu\n')
         
         show_cursor()
         answer = input('> ').lower().strip()
@@ -463,58 +463,126 @@ def can_i_close():
     press_enter()
 
 
+def service_deadline():
+    hearing_date = get_date('What is the hearing date of the document (mm/dd/yy)? ')
+
+    if hearing_date == '0':
+        return
+    
+    tro_deadline = hearing_date - timedelta(days = 15)
+    while (tro_deadline in holidays_list) or (tro_deadline.weekday() == 5) or (tro_deadline.weekday() == 6):
+        tro_deadline -= timedelta(days = 1)
+    
+    pco_in_deadline = hearing_date - timedelta(days = 25)
+    while (pco_in_deadline in holidays_list) or (pco_in_deadline.weekday() == 5) or (pco_in_deadline.weekday() == 6):
+        pco_in_deadline -= timedelta(days = 1)
+    
+    pco_out_deadline = hearing_date - timedelta(days = 30)
+    while (pco_out_deadline in holidays_list) or (pco_out_deadline.weekday() == 5) or (pco_out_deadline.weekday() == 6):
+        pco_out_deadline -= timedelta(days = 1)
+    
+    rfo_deadline = hearing_date
+    court_day = 0
+    while court_day < 23:
+        rfo_deadline -= timedelta(days = 1)
+        while (rfo_deadline in holidays_list) or (rfo_deadline.weekday() == 5) or (rfo_deadline.weekday() == 6):
+            rfo_deadline -= timedelta(days = 1)
+        court_day += 1
+
+    sub_deadline = hearing_date - timedelta(days = 20)
+    while (sub_deadline in holidays_list) or (sub_deadline.weekday() == 5) or (sub_deadline.weekday() == 6):
+        sub_deadline -= timedelta(days = 1)
+
+    service_dict = {
+    'Temporary Restraining Order': tro_deadline,
+    'Plaintiff\'s Claim & Order (in county)': pco_in_deadline,
+    'Plaintiff\'s Claim & Order (out of county)': pco_out_deadline,
+    'Request for Order': rfo_deadline,
+    'Subpoena (Civil)': sub_deadline
+    }
+
+    title_column_one = 'Document Type'
+    title_column_two = 'Last Day to Accept'
+    
+    # table automatically adjusts column width
+    column_one_width = len(title_column_one)
+    column_two_width = len(title_column_two)
+
+    for key in service_dict:
+        if len(key) > column_one_width:
+            column_one_width = len(key)
+
+    if len(format_date(hearing_date)) > column_two_width:
+        column_two_width = len(format_date(hearing_date))
+
+    # final column width
+    column_one_width += 4
+    column_two_width += 4
+
+    horizontal_line = '+' + ('-' * column_one_width) + '+' + ('-' * column_two_width) + '+'
+
+    print_title()
+    print(f'{green_font}Last day to accept documents with hearing date of {format_date(hearing_date)}{reset_font}:')
+    print(horizontal_line)
+    print(f'|{cyan_font}{title_column_one.center(column_one_width)}{reset_font}|{cyan_font}{title_column_two.center(column_two_width)}{reset_font}|')
+    print(horizontal_line)
+
+    
+    for service in service_dict:
+        deadline = format_date(service_dict[service])
+        print(f'|  {green_font}{service.ljust(column_one_width - 2)}{reset_font}|{deadline.center(column_two_width)}|')
+        print(horizontal_line)
+    
+    press_enter()
+
+
 def acceptable_services():
     #for day, name in county_holidays(years = 2020).items():
     #    print(day, name)
 
-    start_date = get_date(f'When are the documents being submitted (mm/dd/yy)?: ')
+    start_date = get_date(f'When are the documents being submitted (mm/dd/yy)? ')
 
     if start_date == '0':
         return
 
     # compute 'temporary restraining order' hearing date accepted today
-    tro_deadline = start_date + timedelta(days = 15)
-
-    while (tro_deadline in holidays_list) or (tro_deadline.weekday() == 5) or (tro_deadline.weekday() == 6):
-        tro_deadline = tro_deadline + timedelta(days = 1)
+    tro_accepted = start_date + timedelta(days = 15)
+    while (tro_accepted in holidays_list) or (tro_accepted.weekday() == 5) or (tro_accepted.weekday() == 6):
+        tro_accepted += timedelta(days = 1)
 
     # compute 'plaintiff's claim & order (in county)' hearing date accepted today
-    pco_in_deadline = start_date + timedelta(days = 25)
-
-    while (pco_in_deadline in holidays_list) or (pco_in_deadline.weekday() == 5) or (pco_in_deadline.weekday() == 6):
-        pco_in_deadline = pco_in_deadline + timedelta(days = 1)
+    pco_in_accepted = start_date + timedelta(days = 25)
+    while (pco_in_accepted in holidays_list) or (pco_in_accepted.weekday() == 5) or (pco_in_accepted.weekday() == 6):
+        pco_in_accepted += timedelta(days = 1)
     
     # compute 'plaintiff's claim & order (out of county)' hearing date accepted today
-    pco_out_deadline = start_date + timedelta(days = 30)
-
-    while (pco_out_deadline in holidays_list) or (pco_out_deadline.weekday() == 5) or (pco_out_deadline.weekday() == 6):
-        pco_out_deadline = pco_out_deadline + timedelta(days = 1)
+    pco_out_accepted = start_date + timedelta(days = 30)
+    while (pco_out_accepted in holidays_list) or (pco_out_accepted.weekday() == 5) or (pco_out_accepted.weekday() == 6):
+        pco_out_accepted += timedelta(days = 1)
 
     # compute 'request for order' hearing date accepted today
-    # rfo_deadline = start_date + timedelta(days = 10)
-    rfo_deadline = start_date
-
+    # rfo_accepted = start_date + timedelta(days = 10)
+    rfo_accepted = start_date
     court_day = 0
 
     # change 23 -> 16 if we are mixing calendar days with court days
     while court_day < 23:
-        rfo_deadline = rfo_deadline + timedelta(days = 1)
-        while (rfo_deadline in holidays_list) or (rfo_deadline.weekday() == 5) or (rfo_deadline.weekday() == 6):
-            rfo_deadline = rfo_deadline + timedelta(days = 1)
+        rfo_accepted += timedelta(days = 1)
+        while (rfo_accepted in holidays_list) or (rfo_accepted.weekday() == 5) or (rfo_accepted.weekday() == 6):
+            rfo_accepted += timedelta(days = 1)
         court_day += 1
 
     # compute 'civil subpoena' hearing date accepted today
-    sub_deadline = start_date + timedelta(days = 20)
-
-    while (sub_deadline in holidays_list) or (sub_deadline.weekday() == 5) or (sub_deadline.weekday() == 6):
-        sub_deadline = sub_deadline + timedelta(days = 1)
+    sub_accepted = start_date + timedelta(days = 20)
+    while (sub_accepted in holidays_list) or (sub_accepted.weekday() == 5) or (sub_accepted.weekday() == 6):
+        sub_accepted += timedelta(days = 1)
 
     service_dict = {
-        'Temporary Restraining Order': tro_deadline,
-        'Plaintiff\'s Claim & Order (in county)': pco_in_deadline,
-        'Plaintiff\'s Claim & Order (out of county)': pco_out_deadline,
-        'Request for Order': rfo_deadline,
-        'Subpoena (Civil)': sub_deadline
+        'Temporary Restraining Order': tro_accepted,
+        'Plaintiff\'s Claim & Order (in county)': pco_in_accepted,
+        'Plaintiff\'s Claim & Order (out of county)': pco_out_accepted,
+        'Request for Order': rfo_accepted,
+        'Subpoena (Civil)': sub_accepted
     }
 
     title_column_one = 'Document Type'
@@ -682,10 +750,11 @@ def compute_employer_stay():
 
 
 menu_items = {
-    '1': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
-    '2': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
-    '3': f'{cyan_font}Miscellaneous:{reset_font} Can I close this file?',
-    '4': f'{cyan_font}Services:{reset_font} What Hearing Dates are we accepting?',
+    '1': f'{cyan_font}Miscellaneous:{reset_font} Can I close this file?',
+    '2': f'{cyan_font}Services:{reset_font} What hearing dates are we accepting as of _____?',
+    '3': f'{cyan_font}Services:{reset_font} What is the last day we can receive a hearing date of _____?',
+    '4': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
+    '5': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
     '0': 'QUIT'
     }
 
@@ -700,7 +769,7 @@ def main_menu():
         print('\nSelect a menu option:\n')
 
         for item in menu_items:
-            print(f'\t[{item}] {menu_items[item]}')
+            print(f'\t[{yellow_font}{item}{reset_font}] {menu_items[item]}')
         
         show_cursor()
         menu_choice = input('\n> ').lower().strip()
@@ -708,13 +777,15 @@ def main_menu():
         if menu_choice == '0':
             break
         elif menu_choice == '1':
-            compute_employer_stay()
-        elif menu_choice == '2':
-            compute_lien_period()
-        elif menu_choice == '3':
             can_i_close()
-        elif menu_choice == '4':
+        elif menu_choice == '2':
             acceptable_services()
+        elif menu_choice == '3':
+            service_deadline()
+        elif menu_choice == '4':
+            compute_employer_stay()
+        elif menu_choice == '5':
+            compute_lien_period()
         else:
             hide_cursor()
             print(f'\n"{menu_choice}" is not a valid choice!')
