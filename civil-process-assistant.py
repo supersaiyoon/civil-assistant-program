@@ -1,8 +1,12 @@
 # import modules
 from datetime import datetime, date, timedelta
-import sys
-import time
+import decimal
 import os
+import random
+import sys
+import textwrap
+import time
+
 
 # third party modules
 from colorama import Fore, Back, Style
@@ -11,12 +15,9 @@ import holidays
 import pyperclip
 
 
-# app info
-app_author = 'Brian Yoon'
-app_name = 'The Civil Process Assistant'
-app_version = 'Version 2.0.0'
-app_copyright = f'Copyright (C) 2020 {app_author}'
-app_info = [app_name, app_version, app_copyright]
+# window settings
+window_width = os.get_terminal_size().columns
+textwrap_width = int(0.90 * window_width)
 
 
 # variables for calling colors
@@ -27,7 +28,38 @@ yellow_font = Fore.YELLOW
 reset_font = Style.RESET_ALL
 
 
-# useful generic functions
+# app info
+app_author = 'Brian Yoon'
+app_name = 'The Civil Assistant Program'
+app_version = 'Version 2.0.0'
+app_copyright = f'Copyright (C) 2020 {app_author}'
+app_info = [app_name, app_version, app_copyright]
+app_motto = '"A little help for civil processes."'
+
+app_splash_list = [
+    '████████╗██╗  ██╗███████╗     ██████╗    █████╗    ██████╗',
+    '╚══██╔══╝██║  ██║██╔════╝    ██╔════╝   ██╔══██╗   ██╔══██╗',
+    '   ██║   ███████║█████╗      ██║        ███████║   ██████╔╝',
+    '   ██║   ██╔══██║██╔══╝      ██║        ██╔══██║   ██╔═══╝',
+    '   ██║   ██║  ██║███████╗    ╚██████╗██╗██║  ██║██╗██║██╗',
+    '   ╚═╝   ╚═╝  ╚═╝╚══════╝     ╚═════╝╚═╝╚═╝  ╚═╝╚═╝╚═╝╚═╝'
+    ]
+
+
+# generic functions
+def splash_screen():
+    hide_cursor()
+    print('\n' * 5)
+    indent = '\t' * 2
+
+    for line in app_splash_list:
+        print(f'{indent}{line}')
+
+    print(f'\t{indent}{app_name}')
+    print(f'\t{indent}{app_motto}')
+    time.sleep(6)
+
+
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -45,12 +77,6 @@ def press_enter():
     input(f'\n{yellow_font}Press Enter to continue...{reset_font}')
 
 
-# closing file messages
-no_close_msg = '\n\t***DO NOT CLOSE THE FILE***'
-
-close_msg = '\n\t***CLOSE THE FILE***'
-
-
 # functions for showing/hiding cursor
 if os.name == 'nt':
     import msvcrt
@@ -59,6 +85,7 @@ if os.name == 'nt':
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int),
                     ("visible", ctypes.c_byte)]
+
 
 def hide_cursor():
     if os.name == 'nt':
@@ -70,6 +97,7 @@ def hide_cursor():
     elif os.name == 'posix':
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
+
 
 def show_cursor():
     if os.name == 'nt':
@@ -83,6 +111,12 @@ def show_cursor():
         sys.stdout.flush()
 
 
+def bad_answer(user_input):
+    hide_cursor()
+    print(f'\n{yellow_font}I do not understand{reset_font} "{user_input}." {yellow_font}Try again.{reset_font}')
+    time.sleep(2)
+
+
 def format_date(user_date):
     return user_date.strftime('%m/%d/%Y')
 
@@ -90,17 +124,16 @@ def format_date(user_date):
 def get_date(question):
     while True:
         print_title()
+        print(textwrap.fill(question, width = textwrap_width))
         show_cursor()
-        user_date = input(question).strip()
+        user_date = input('\n> ').lower().strip()
         if user_date == '0':
             break
         try:
             user_date = datetime.strptime(user_date, "%m/%d/%y").date()
             break
         except ValueError:
-            hide_cursor()
-            print(f'\n{red_font}Invalid date entered.{reset_font}')
-            time.sleep(2)
+            bad_answer(user_date)
     return user_date
 
 
@@ -173,26 +206,18 @@ holidays_list = county_holidays()
 holidays_list.observed = False
 
 
-# important variables
-today = date.today()
-hundred_eighty_ago = format_date(today - timedelta(days = 180))
-two_years_ago = format_date(today + relativedelta(years =- 2))
-
-
 def get_answer(question):
     while True:
         print_title()
-        print(question)
-        print(f'\n\t[{yellow_font}1{reset_font}] Yes    [{yellow_font}2{reset_font}] No    [{yellow_font}0{reset_font}] Quit to Main Menu\n')
+        print(textwrap.fill(question, width = textwrap_width))
+        print(f'\n\t[{yellow_font}1{reset_font}] Yes    [{yellow_font}2{reset_font}] No    [{yellow_font}0{reset_font}] Quit to Main Menu')
         
         show_cursor()
-        answer = input('> ').lower().strip()
+        answer = input('\n> ').lower().strip()
         if answer in ['0', '1', '2']:
             break
         else:
-            hide_cursor()
-            print(f'\nThat\'s not a valid choice!')
-            time.sleep(2)
+            bad_answer(answer)
     return answer
 
 
@@ -240,8 +265,8 @@ def eoj_inquiry():
                 while True:
                     print_title()
                     print(f'Are you inquiring about a {cyan_font}bank levy{reset_font} or a {cyan_font}third party levy{reset_font}?\n')
-                    print('\t[1] Bank levy')
-                    print('\t[2] Third party levy\n')
+                    print(f'\t[{yellow_font}1{reset_font}] Bank levy')
+                    print(f'\t[{yellow_font}2{reset_font}] Third party levy\n')
                     
                     show_cursor()
                     answer = input('> ').lower().strip()
@@ -249,9 +274,7 @@ def eoj_inquiry():
                     if answer in ['0', '1', '2']:
                         break
                     else:
-                        hide_cursor()
-                        print(f'\n"{answer}" is not a valid choice!')
-                        time.sleep(2)
+                        bad_answer(answer)
 
                 if answer == '0':
                     answer = 'quit'
@@ -292,11 +315,11 @@ def ewo_inquiry():
 
         # ewo question 2
         er_menu = {
-            '1': 'Employer\'s Return: Effective',
-            '2': 'Employer\'s Return: Ineffective',
-            '3': 'Employer\'s Return: Undetermined',
-            '4': 'Employer\'s Correspondence: Leave of absence or intervening levy',
-            '5': 'Employer\'s Correspondence: Employee terminated',
+            '1': f'{cyan_font}Employer\'s Return:{reset_font} Effective',
+            '2': f'{cyan_font}Employer\'s Return:{reset_font} Ineffective',
+            '3': f'{cyan_font}Employer\'s Return:{reset_font} Undetermined',
+            '4': f'{cyan_font}Employer\'s Correspondence:{reset_font} Leave of absence or intervening levy',
+            '5': f'{cyan_font}Employer\'s Correspondence:{reset_font} Employee terminated',
             '6': 'None of the above / None at all'
             }
 
@@ -306,16 +329,14 @@ def ewo_inquiry():
             print(f'What was the {cyan_font}most recent{reset_font} communication from the employer?\n')
 
             for item in er_menu:
-                print(f'\t[{item}] {er_menu[item]}')
+                print(f'\t[{yellow_font}{item}{reset_font}] {er_menu[item]}')
             
             show_cursor()
             answer = input('\n> ').lower().strip()
             if answer in ['0', '1', '2', '3', '4', '5', '6']:
                 break
             else:
-                hide_cursor()
-                print(f'\n"{answer}" is not a valid choice!')
-                time.sleep(2)
+                bad_answer(answer)
 
         if answer == '0':
             answer = 'quit'
@@ -458,14 +479,68 @@ def can_i_close():
     if answer == 'quit':
         return
     elif answer == 'close':
-        print(close_msg)
+        print(close_msg.center(window_width))
     elif answer == 'no close':
-        print(no_close_msg)
+        print(no_close_msg.center(window_width))
+    press_enter()
+
+
+def mod_breakdown():
+    decimal.getcontext().rounding = decimal.ROUND_DOWN
+
+    while True:
+        print_title()
+        try:
+            show_cursor()
+            mod_input = float(input(f'{cyan_font}Monthly{reset_font} modified amount per court: $'))
+            break
+        except ValueError:
+            hide_cursor()
+            print(f'\n{red_font}I do not understand. Please try again.{reset_font}')
+            time.sleep(2)
+    
+    if mod_input == 0.0:
+        return
+    
+    pay_freq_dict = {
+        '1': [26, 'every two weeks'],
+        '2': [24, 'twice per month'],
+        '3': [52, 'every week']
+    }
+
+    while True:
+        print_title()
+        print(f'What is the debtor\'s {cyan_font}pay frequency{reset_font}?\n')
+
+        for key in pay_freq_dict:
+            print(f'\t[{yellow_font}{key}{reset_font}] {pay_freq_dict[key][1].capitalize()}')
+        
+        user_input = input('\n> ')
+        if user_input == '0':
+            return
+    
+        if user_input in pay_freq_dict:
+            num_payday = pay_freq_dict[user_input][0]
+            payday_text = pay_freq_dict[user_input][1]
+            break
+        else:
+            print(f'\n{red_font}I do not understand "{user_input}." Please try again.{reset_font}')
+            time.sleep(2)
+    
+    annual_max = mod_input * 12
+    breakdown = decimal.Decimal(annual_max / num_payday)
+    comment = f'MOD breakdown at ${mod_input:.2f}/month, paid {payday_text} per COE/ER: ${mod_input:.2f} * 12 mos. = ${annual_max:.2f} / {num_payday} pp = ${breakdown:.2f} pp'
+
+    print_title()
+    print(textwrap.fill(comment, width = textwrap_width))
+    pyperclip.copy(comment)
+
+    print(copied_msg)
     press_enter()
 
 
 def compute_coe_appeal():
-    order_date = get_date(f'What is the {cyan_font}date of the COE order{reset_font} (mm/dd/yy)? ')
+    order_date = get_date(f'What is the {cyan_font}date of the COE order{reset_font} (mm/dd/yy)?')
     if order_date == '0':
         return
 
@@ -481,13 +556,13 @@ def compute_coe_appeal():
         pyperclip.copy('Funds due to the creditor to be held 60 days (unlimited) pending expiration of appeal period')
 
     print_title()
-    print(f'The appeal period {cyan_font}expires on {format_date(order_date)}{reset_font}.\n')
-    print(f'{cyan_font}(Boilerplate comment copied! Now paste it in File Actions.){reset_font}')
+    print(f'The appeal period {cyan_font}expires on {format_date(order_date)}{reset_font}.')
+    print(copied_msg)
     press_enter()
 
 
 def service_deadline():
-    hearing_date = get_date('What is the hearing date of the document (mm/dd/yy)? ')
+    hearing_date = get_date(f'What is the {cyan_font}hearing date{reset_font} of the document (mm/dd/yy)? ')
 
     if hearing_date == '0':
         return
@@ -545,7 +620,7 @@ def service_deadline():
     horizontal_line = '+' + ('-' * column_one_width) + '+' + ('-' * column_two_width) + '+'
 
     print_title()
-    print(f'{green_font}Last day to accept documents with hearing date of {format_date(hearing_date)}{reset_font}:')
+    print(f'{yellow_font}Last day to accept documents with hearing date of {format_date(hearing_date)}{reset_font}:')
     print(horizontal_line)
     print(f'|{cyan_font}{title_column_one.center(column_one_width)}{reset_font}|{cyan_font}{title_column_two.center(column_two_width)}{reset_font}|')
     print(horizontal_line)
@@ -553,7 +628,7 @@ def service_deadline():
     
     for service in service_dict:
         deadline = format_date(service_dict[service])
-        print(f'|  {green_font}{service.ljust(column_one_width - 2)}{reset_font}|{deadline.center(column_two_width)}|')
+        print(f'|  {service.ljust(column_one_width - 2)}|{deadline.center(column_two_width)}|')
         print(horizontal_line)
     
     press_enter()
@@ -563,7 +638,7 @@ def acceptable_services():
     #for day, name in county_holidays(years = 2020).items():
     #    print(day, name)
 
-    start_date = get_date(f'When are the documents being submitted (mm/dd/yy)? ')
+    start_date = get_date(f'When are the documents being {cyan_font}submitted{reset_font} (mm/dd/yy)?')
 
     if start_date == '0':
         return
@@ -629,7 +704,7 @@ def acceptable_services():
     horizontal_line = '+' + ('-' * column_one_width) + '+' + ('-' * column_two_width) + '+'
 
     print_title()
-    print(f'{green_font}Hearing Dates accepted as of {format_date(start_date)}{reset_font}:')
+    print(f'{yellow_font}Hearing Dates accepted as of {format_date(start_date)}{reset_font}:')
     print(horizontal_line)
     print(f'|{cyan_font}{title_column_one.center(column_one_width)}{reset_font}|{cyan_font}{title_column_two.center(column_two_width)}{reset_font}|')
     print(horizontal_line)
@@ -637,7 +712,7 @@ def acceptable_services():
     
     for service in service_dict:
         deadline = format_date(service_dict[service])
-        print(f'|  {green_font}{service.ljust(column_one_width - 2)}{reset_font}|{deadline.center(column_two_width)}|')
+        print(f'|  {service.ljust(column_one_width - 2)}|{deadline.center(column_two_width)}|')
         print(horizontal_line)
     
     press_enter()
@@ -655,17 +730,19 @@ def compute_lien_period():
         elif answer == '2':
             lien_duration = 2
 
-        writ_issued = get_date(f'Enter {cyan_font}writ issued{reset_font} date (mm/dd/yy): ')
+        writ_issued = get_date(f'What is the {cyan_font}writ issued{reset_font} date (mm/dd/yy)?')
         if writ_issued == '0':
             return
         
-        bk_filing = get_date(f'Enter {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy): ')
+        bk_filing = get_date(f'What is the {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy)?')
         if bk_filing == '0':
             return
         
         # if bk was filed before writ was issued, check if we served levy during automatic stay
+        print()
         if bk_filing <= writ_issued:
-            print(f'\n\t{red_font}WARNING!{reset_font} The debtor filed for bankruptcy before the writ was issued. Verify that we did not serve the levy during the automatic stay.')
+            warning_msg = f'{red_font}WARNING!{reset_font} The debtor filed for bankruptcy before the writ was issued. Verify that we did not serve the levy during the automatic stay.'
+            print(textwrap.fill(warning_msg, width = textwrap_width))
             press_enter()
 
             answer = get_answer(f'Was the levy {cyan_font}served during the automatic stay{reset_font}?')
@@ -679,7 +756,7 @@ def compute_lien_period():
         # this loop ensures that the bk disposition date is AFTER the bk filing date
         while True:
             show_cursor()
-            bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
+            bk_disp = get_date(f'What is the {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy)?')
             if bk_disp == '0':
                 return
 
@@ -713,7 +790,7 @@ def compute_lien_period():
             
             while True:
                 show_cursor()
-                bk_filing = get_date(f'Enter {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy): ')
+                bk_filing = get_date(f'What is the {cyan_font}bankruptcy filing{reset_font} date (mm/dd/yy)?')
                 if bk_filing == '0':
                     return
                 
@@ -727,15 +804,16 @@ def compute_lien_period():
             # need to check if lien expired before new BK filing
             actual_lien_exp = norm_lien_exp + timedelta(days = (days_in_bk + 1))
             if bk_filing >= actual_lien_exp:
-                print(f'\n\tThe levy lien period already {cyan_font}expired on {format_date(actual_lien_exp)}{reset_font}.')
-                print('\tThere is no need to calculate any more bankruptcy stays.')
+                expired_msg = f'The levy lien period already {cyan_font}expired on {format_date(actual_lien_exp)}{reset_font}. There is no need to calculate any more bankruptcy stays.'
+                print()
+                print(textwrap.fill(expired_msg, width = textwrap_width))
                 press_enter()
                 return
 
             # this is repeated code from above. make this a function?
             while True:
                 show_cursor()
-                bk_disp = get_date(f'Enter {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy): ')
+                bk_disp = get_date(f'What is the {cyan_font}bankruptcy disposition{reset_font} date (mm/dd/yy)?')
                 if bk_disp == '0':
                     return
 
@@ -762,70 +840,71 @@ def compute_lien_period():
 
 
 def compute_employer_stay():
-    timestamp = get_date(f'Enter {cyan_font}Sheriff timestamp{reset_font} date (mm/dd/yy): ')
+    timestamp = get_date(f'What is the {cyan_font}Sheriff timestamp{reset_font} date (mm/dd/yy)?')
 
     if timestamp == '0':
         return
 
     stay_date = timestamp + timedelta(days = 180)
-    print(f'\n\tEmployer is to stay the wage garnishment until {cyan_font}{format_date(stay_date)}{reset_font}.')
+    print()
+    stay_msg = f'Stay the wage garnishment and DO NOT withhold any earnings. Unless otherwise notified by the Sheriff\'s Office, release the levy in full on {cyan_font}{format_date(stay_date)}{reset_font}.'
+    print(textwrap.fill(stay_msg, width = textwrap_width))
+    pyperclip.copy(f'Stay the wage garnishment and DO NOT withhold any earnings. Unless otherwise notified by the Sheriff\'s Office, release the levy in full on {format_date(stay_date)}.')
+    print(copied_msg)
     press_enter()
 
 
+# important variables
+parting_words = ['Adios', 'Annyeong', 'Arrivederci', 'Au revoir', 'Auf Wiedersehen', 'Ciao', 'Do svidaniya', 'Farewell', 'Goodbye', 'Sayonara', 'Sbohem']
+no_close_msg = f'* * *  {red_font}DO NOT CLOSE THE FILE{reset_font}  * * *'
+close_msg = f'* * *  {green_font}CLOSE THE FILE{reset_font}  * * *'
+copied_msg = f'\n{cyan_font}(Boilerplate comment copied!){reset_font}'
+today = date.today()
+hundred_eighty_ago = format_date(today - timedelta(days = 180))
+two_years_ago = format_date(today + relativedelta(years =- 2))
+
+
 menu_items = {
-    '1': f'{cyan_font}Miscellaneous:{reset_font} Can I close this file?',
-    '2': f'{cyan_font}Services:{reset_font} What hearing dates are we accepting as of _____?',
-    '3': f'{cyan_font}Services:{reset_font} What is the last day we can receive a hearing date of _____?',
-    '4': f'{cyan_font}Claim of Exemption:{reset_font} When does the appeal period expire?',
-    '5': f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?',
-    '6': f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?',
-    '0': 'QUIT'
+    '1': [f'{cyan_font}General:{reset_font} Can I close this file?', can_i_close],
+    '2': [f'{cyan_font}General:{reset_font} What hearing dates are we accepting as of _____?', acceptable_services],
+    '3': [f'{cyan_font}General:{reset_font} What is the last day we can receive a hearing date of _____?', service_deadline],
+    '4': [f'{cyan_font}Claim of Exemption:{reset_font} What is the MOD breakdown for this COE order?', mod_breakdown],
+    '5': [f'{cyan_font}Claim of Exemption:{reset_font} When does the appeal period expire?', compute_coe_appeal],
+    '6': [f'{cyan_font}Bankruptcy:{reset_font} Until when is the employer to stay the wage garnishment?', compute_employer_stay],
+    '7': [f'{cyan_font}Bankruptcy:{reset_font} Did the levy lien period expire?', compute_lien_period],
+    '0': ['QUIT']
     }
 
 
 def main_menu():
     while True:
         print_title()
-
-        width = os.get_terminal_size().columns
-        print('--={ MAIN MENU }=--'.center(width))
-
-        print('\nSelect a menu option:\n')
+        print(f'{yellow_font}Main Menu{reset_font} Options:\n')
 
         for item in menu_items:
-            print(f'\t[{yellow_font}{item}{reset_font}] {menu_items[item]}')
+            print(f'\t[{yellow_font}{item}{reset_font}] {menu_items[item][0]}')
         
         show_cursor()
         menu_choice = input('\n> ').lower().strip()
 
         if menu_choice == '0':
             break
-        elif menu_choice == '1':
-            can_i_close()
-        elif menu_choice == '2':
-            acceptable_services()
-        elif menu_choice == '3':
-            service_deadline()
-        elif menu_choice == '4':
-            compute_coe_appeal()
-        elif menu_choice == '5':
-            compute_employer_stay()
-        elif menu_choice == '6':
-            compute_lien_period()
+        elif menu_choice in menu_items:
+            menu_items[menu_choice][1]()
         else:
-            hide_cursor()
-            print(f'\n"{menu_choice}" is not a valid choice!')
-            time.sleep(2)
+            bad_answer(menu_choice)
             continue
         print_title()
         hide_cursor()
-        print('Returning to the main menu...')
+        print(f'{yellow_font}Returning to the main menu...{reset_font}')
         time.sleep(2)
 
 
 def main():
+    splash_screen()
     main_menu()
-    print(f'\n{app_name} terminated. Goodbye.')
+    print_title()
+    print(f'{app_name} terminated. {yellow_font}{random.choice(parting_words)}!{reset_font}')
     time.sleep(2)
     sys.exit()
 
