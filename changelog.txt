@@ -32,7 +32,7 @@ TYPES OF CHANGES:
 - Text cursor is now hidden when messages are diplayed.
 - Converted wall of text at the beginning into  more questions to the "Can I close this file?" process.
 - When computing the stay expiration date for the employer (bankrupty), the boilerplate comment is copied so that the user can paste immediately.
-- The CPA learned new ways to say goodbye.
+- The CAP learned new ways to say goodbye.
 
 
 ## [1.0] - 2020-07-24
