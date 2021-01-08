@@ -14,7 +14,13 @@ TYPES OF CHANGES:
 - "## Unreleased" for features in progress.
 
 
-## [2.0.0] - TBD
+## [2.1.0] - TBD
+
+### Changed
+- Users can enter two- or four-digit years when entering dates.
+
+
+## [2.0.0] - 2020-12-10
 
 ### Added
 - Users can now return to the main menu at any time in the program by typing the number 0.
