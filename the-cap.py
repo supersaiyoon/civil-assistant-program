@@ -129,6 +129,13 @@ def get_date(question):
         user_date = input('\n> ').lower().strip()
         if user_date == '0':
             break
+        
+        try:
+            user_date = datetime.strptime(user_date, "%m/%d/%Y").date()
+            break
+        except ValueError:
+            pass
+
         try:
             user_date = datetime.strptime(user_date, "%m/%d/%y").date()
             break
